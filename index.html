@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EpicScholar | Login</title>
+    <style>
+        /* ════════════════════════════════════════
+   RESET & BASE
+   ════════════════════════════════════════ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: #e9eef8;
+            height: 100vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Ambient blobs ── */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(130px);
+            pointer-events: none;
+            z-index: 0;
+            animation: moveBlob 30s infinite alternate;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #0072ff, #ff416c);
+            opacity: 0.13;
+            top: -20%;
+            left: -15%;
+            animation-duration: 34s;
+        }
+
+        body::after {
+            width: 450px;
+            height: 450px;
+            background: #ff416c;
+            opacity: 0.08;
+            bottom: -20%;
+            right: -15%;
+            animation-duration: 28s;
+        }
+
+        @keyframes moveBlob {
+            0% {
+                transform: translate(0, 0) scale(1.0);
+            }
+
+            50% {
+                transform: translate(100px, -80px) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-60px, 60px) scale(0.9);
+            }
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0072ff;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* ════════════════════════════════════════
+   LAYOUT
+   ════════════════════════════════════════ */
+        .left {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .left h1 {
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #ff416c, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradientFlow 5s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ════════════════════════════════════════
+   GLASS BOX
+   ════════════════════════════════════════ */
+        .box {
+            background: rgba(18, 18, 18, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
+            padding: 32px 36px;
+            border-radius: 20px;
+            width: 380px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            animation: slideInRight 0.7s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(60px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .box h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #e9eef8;
+        }
+
+        /* ════════════════════════════════════════
+   AUTH TABS
+   ════════════════════════════════════════ */
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        /* Unselected — no tint, plain border */
+        .auth-tab {
+            flex: 1;
+            padding: 9px;
+            background: transparent;
+            color: #777;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: color 0.25s, background 0.25s;
+            position: relative;
+            z-index: 0;
+        }
+
+        .auth-tab:hover:not(.active) {
+            color: #aaa;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Selected — darker tint + gradient border + gradient text */
+        .auth-tab.active {
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            font-weight: 700;
+
+            /* Gradient text */
+            color: transparent;
+            background-image: linear-gradient(90deg, #ff416c, #0072ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Dark tint layer behind gradient text */
+        .auth-tab.active::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Gradient border ring */
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            inset: -1.5px;
+            z-index: -2;
+            border-radius: 11.5px;
+            background: linear-gradient(90deg, #ff416c, #0072ff);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            padding: 1.5px;
+        }
+
+        /* ════════════════════════════════════════
+   INPUT FIELDS
+   ════════════════════════════════════════ */
+        .input-box {
+            text-align: left;
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .input-box label {
+            font-size: 13px;
+            color: #888;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-box input,
+        .input-box select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.03);
+            color: #e9eef8;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .input-box input:focus,
+        .input-box select:focus {
+            border-color: transparent;
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 2px rgba(0, 114, 255, 0.4);
+        }
+
+        .input-box select option {
+            background: #111;
+            color: #e9eef8;
+        }
+
+        /* ── Password wrapper ── */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 42px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            user-select: none;
+            transition: transform 0.2s;
+            line-height: 1;
+        }
+
+        .password-toggle:hover {
+            transform: translateY(-50%) scale(1.15);
+        }
+
+        /* ── Messages ── */
+        .message {
+            font-size: 12px;
+            margin-top: 4px;
+            color: #ff416c;
+            min-height: 16px;
+            text-align: left;
+        }
+
+        .success {
+            color: #4ade80;
+        }
+
+        /* ════════════════════════════════════════
+   BUTTONS
+   ════════════════════════════════════════ */
+        .btn {
+            width: 100%;
+            padding: 11px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #ff416c, #0072ff);
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s;
+        }
+
+        .btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 24px rgba(255, 65, 108, 0.35);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 10px;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #e9eef8;
+        }
+
+        /* ════════════════════════════════════════
+   STATUS / LINKS / MISC
+   ════════════════════════════════════════ */
+        .status {
+            font-size: 13px;
+            margin-top: 10px;
+            color: #4ade80;
+            min-height: 18px;
+        }
+
+        .switch,
+        .org-link {
+            margin-top: 14px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .switch a,
+        .org-link a {
+            color: #66aaff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .switch a:hover,
+        .org-link a:hover {
+            text-decoration: underline;
+        }
+
+        .forgot-link {
+            text-align: right;
+            margin-top: 6px;
+            font-size: 12px;
+        }
+
+        .forgot-link a {
+            color: #ff416c;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .back-link a {
+            color: #66aaff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .otp-hint {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 14px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .otp-resend {
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+            color: #555;
+        }
+
+        .otp-resend a {
+            color: #66aaff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .otp-resend a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Autofill override ── */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0px 1000px #000 inset !important;
+            -webkit-text-fill-color: #e9eef8 !important;
+            background-clip: content-box !important;
+        }
+
+        /* ════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════ */
+
+        /* ── 4K / Ultra-wide (2560px+) ── */
+        @media (min-width: 2560px) {
+            .left h1 {
+                font-size: 8rem;
+            }
+
+            .box {
+                width: 520px;
+                padding: 50px 56px;
+                border-radius: 26px;
+            }
+
+            .box h2 {
+                font-size: 26px;
+                margin-bottom: 26px;
+            }
+
+            .auth-tab {
+                font-size: 15px;
+                padding: 12px;
+            }
+
+            .input-box label {
+                font-size: 15px;
+            }
+
+            .input-box input,
+            .input-box select {
+                font-size: 16px;
+                padding: 13px 15px;
+            }
+
+            .btn {
+                font-size: 17px;
+                padding: 15px;
+            }
+
+            .switch,
+            .org-link {
+                font-size: 15px;
+            }
+        }
+
+        /* ── Large monitors (1920px – 2559px) ── */
+        @media (min-width: 1920px) and (max-width: 2559px) {
+            .left h1 {
+                font-size: 6.5rem;
+            }
+
+            .box {
+                width: 460px;
+                padding: 42px 48px;
+            }
+
+            .box h2 {
+                font-size: 23px;
+            }
+
+            .auth-tab {
+                font-size: 14px;
+                padding: 11px;
+            }
+
+            .input-box input,
+            .input-box select {
+                font-size: 15px;
+                padding: 12px 14px;
+            }
+
+            .btn {
+                font-size: 16px;
+                padding: 13px;
+            }
+        }
+
+        /* ── Standard desktop (1440px – 1919px) ── */
+        @media (min-width: 1440px) and (max-width: 1919px) {
+            .left h1 {
+                font-size: 5.8rem;
+            }
+
+            .box {
+                width: 420px;
+                padding: 36px 42px;
+            }
+
+            .box h2 {
+                font-size: 21px;
+            }
+
+            .btn {
+                font-size: 15px;
+                padding: 12px;
+            }
+        }
+
+        /* ── Small desktop / large laptop (1280px – 1439px) ── */
+        @media (min-width: 1280px) and (max-width: 1439px) {
+            .left h1 {
+                font-size: 4.8rem;
+            }
+
+            .box {
+                width: 390px;
+                padding: 30px 36px;
+            }
+        }
+
+        /* ── Laptop (1024px – 1279px) ── */
+        @media (min-width: 1024px) and (max-width: 1279px) {
+            body {
+                padding: 0 4%;
+            }
+
+            .left h1 {
+                font-size: 4rem;
+            }
+
+            .box {
+                width: 360px;
+                padding: 28px 32px;
+            }
+
+            .box h2 {
+                font-size: 18px;
+            }
+        }
+
+        /* ── Tablet landscape (768px – 1023px) ── */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            body {
+                padding: 0 3%;
+            }
+
+            .left h1 {
+                font-size: 3.2rem;
+            }
+
+            .box {
+                width: 320px;
+                padding: 24px 26px;
+                border-radius: 16px;
+            }
+
+            .box h2 {
+                font-size: 17px;
+                margin-bottom: 16px;
+            }
+
+            .auth-tab {
+                font-size: 12px;
+                padding: 8px 6px;
+            }
+
+            .input-box label {
+                font-size: 12px;
+            }
+
+            .input-box input,
+            .input-box select {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .btn {
+                font-size: 14px;
+                padding: 10px;
+                margin-top: 10px;
+            }
+
+            .switch,
+            .org-link {
+                font-size: 12px;
+            }
+        }
+
+        /* ── Tablet portrait (600px – 767px) ── */
+        @media (max-width: 767px) {
+            body {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 24px;
+                padding: 30px 22px;
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+
+            body::before {
+                width: 320px;
+                height: 320px;
+                top: -8%;
+                left: -8%;
+            }
+
+            body::after {
+                width: 260px;
+                height: 260px;
+                bottom: -8%;
+                right: -8%;
+            }
+
+            .left {
+                flex: none;
+                width: 100%;
+                justify-content: center;
+                padding-top: 8px;
+            }
+
+            .left h1 {
+                font-size: 2.8rem;
+                text-align: center;
+            }
+
+            .right {
+                flex: none;
+                width: 100%;
+                justify-content: center;
+                padding-bottom: 28px;
+            }
+
+            .box {
+                width: 100%;
+                max-width: 460px;
+                padding: 26px 26px;
+                animation: slideInUp 0.6s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+            }
+
+            @keyframes slideInUp {
+                from {
+                    transform: translateY(40px);
+                    opacity: 0;
+                }
+
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+        }
+
+        /* ── Mobile large (480px – 599px) ── */
+        @media (max-width: 599px) {
+            body {
+                padding: 22px 16px;
+                gap: 20px;
+            }
+
+            .left h1 {
+                font-size: 2.4rem;
+            }
+
+            .box {
+                padding: 22px 20px;
+                border-radius: 15px;
+            }
+
+            .box h2 {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            .auth-tabs {
+                gap: 6px;
+                margin-bottom: 14px;
+            }
+
+            .auth-tab {
+                font-size: 12px;
+                padding: 8px 5px;
+                border-radius: 9px;
+            }
+
+            .auth-tab.active::before {
+                border-radius: 9px;
+            }
+
+            .auth-tab.active::after {
+                border-radius: 10px;
+            }
+
+            .input-box label {
+                font-size: 12px;
+            }
+
+            .input-box input,
+            .input-box select {
+                font-size: 16px;
+                padding: 11px 11px;
+                border-radius: 9px;
+            }
+
+            .btn {
+                font-size: 14px;
+                padding: 11px;
+                margin-top: 11px;
+                border-radius: 9px;
+            }
+
+            .btn-secondary {
+                font-size: 13px;
+            }
+
+            .switch,
+            .org-link {
+                font-size: 12px;
+                margin-top: 11px;
+            }
+
+            .otp-hint {
+                font-size: 12px;
+            }
+
+            .otp-resend {
+                font-size: 12px;
+            }
+
+            .status {
+                font-size: 12px;
+            }
+
+            .message {
+                font-size: 11px;
+            }
+
+            .forgot-link {
+                font-size: 11px;
+            }
+
+            .back-link {
+                font-size: 12px;
+            }
+        }
+
+        /* ── Mobile small (below 480px) ── */
+        @media (max-width: 479px) {
+            body {
+                padding: 18px 12px;
+                gap: 16px;
+            }
+
+            .left h1 {
+                font-size: 2rem;
+            }
+
+            .box {
+                padding: 20px 16px;
+                border-radius: 14px;
+                width: 100%;
+            }
+
+            .box h2 {
+                font-size: 15px;
+                margin-bottom: 13px;
+            }
+
+            .auth-tabs {
+                gap: 5px;
+                margin-bottom: 13px;
+            }
+
+            .auth-tab {
+                font-size: 11px;
+                padding: 7px 4px;
+                border-radius: 8px;
+            }
+
+            .auth-tab.active::before {
+                border-radius: 8px;
+            }
+
+            .auth-tab.active::after {
+                border-radius: 9px;
+            }
+
+            .input-box {
+                margin-bottom: 2px;
+            }
+
+            .input-box label {
+                font-size: 11px;
+            }
+
+            .input-box input,
+            .input-box select {
+                font-size: 16px;
+                padding: 10px 10px;
+                border-radius: 8px;
+            }
+
+            .password-toggle {
+                font-size: 16px;
+                right: 9px;
+            }
+
+            .btn {
+                padding: 11px;
+                font-size: 14px;
+                border-radius: 8px;
+                margin-top: 10px;
+            }
+
+            .btn-secondary {
+                padding: 9px;
+                font-size: 12px;
+                border-radius: 8px;
+            }
+
+            .forgot-link {
+                font-size: 11px;
+            }
+
+            .message {
+                font-size: 11px;
+            }
+
+            .otp-hint {
+                font-size: 12px;
+            }
+
+            .otp-resend {
+                font-size: 11px;
+            }
+
+            .switch,
+            .org-link {
+                font-size: 11px;
+                margin-top: 10px;
+            }
+
+            .status {
+                font-size: 11px;
+            }
+
+            .back-link {
+                font-size: 11px;
+            }
+        }
+
+        /* ── Touch devices — remove sticky hovers ── */
+        @media (hover: none) and (pointer: coarse) {
+            .btn:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+            .btn:active {
+                transform: scale(0.97);
+                box-shadow: 0 4px 14px rgba(255, 65, 108, 0.3);
+            }
+
+            .auth-tab:hover:not(.active) {
+                color: #777;
+                background: rgba(255, 255, 255, 0.04);
+            }
+        }
+
+        /* ── Landscape mobile (short viewport) ── */
+        @media (max-height: 500px) and (orientation: landscape) {
+            body {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 14px 5%;
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+                gap: 16px;
+            }
+
+            .left {
+                flex: 0 0 auto;
+            }
+
+            .left h1 {
+                font-size: 1.8rem;
+            }
+
+            .right {
+                flex: 1;
+            }
+
+            .box {
+                width: 300px;
+                padding: 16px 18px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .box h2 {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+
+            .auth-tabs {
+                margin-bottom: 9px;
+            }
+
+            .input-box {
+                margin-bottom: 1px;
+            }
+
+            .btn {
+                margin-top: 8px;
+                padding: 9px;
+                font-size: 13px;
+            }
+
+            .switch,
+            .org-link {
+                margin-top: 8px;
+                font-size: 11px;
+            }
+        }
+
+        /* ════════════════════════════════════════
+   REMOVE TOUCH HIGHLIGHT
+   ════════════════════════════════════════ */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        input,
+        select,
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ════════════════════════════════════════
+   MOBILE LAYOUT — text above, box below,
+   with subtle vertical separation
+   ════════════════════════════════════════ */
+        @media (max-width: 767px) {
+            body {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 30px 22px;
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+                gap: 0;
+            }
+
+            .left {
+                flex: none;
+                width: 100%;
+                justify-content: center;
+                padding-top: 10px;
+                padding-bottom: 0;
+                margin-bottom: 20px;
+            }
+
+            .left h1 {
+                font-size: 3.2rem;
+                text-align: center;
+                letter-spacing: -1px;
+                line-height: 1.1;
+            }
+
+            .right {
+                flex: none;
+                width: 100%;
+                justify-content: center;
+                padding-bottom: 28px;
+                margin-top: 8px;
+            }
+
+            .box {
+                width: 100%;
+                max-width: 460px;
+                animation: slideInUp 0.6s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+            }
+        }
+
+        @media (max-width: 599px) {
+            .left {
+                margin-bottom: 18px;
+            }
+
+            .left h1 {
+                font-size: 2.8rem;
+                letter-spacing: -0.5px;
+            }
+
+            .right {
+                margin-top: 6px;
+            }
+        }
+
+        @media (max-width: 479px) {
+            .left {
+                margin-bottom: 16px;
+            }
+
+            .left h1 {
+                font-size: 2.4rem;
+                letter-spacing: -0.5px;
+            }
+
+            .right {
+                margin-top: 4px;
+            }
+        }
+
+        /* ════════════════════════════════════════
+   RELIABLE TOUCH PRESS FEEDBACK
+   ════════════════════════════════════════ */
+
+        /* Primary button press */
+        .btn.pressed {
+            transform: scale(0.93) !important;
+            filter: brightness(0.75) !important;
+            box-shadow: 0 1px 6px rgba(255, 65, 108, 0.2) !important;
+            transition: transform 0.08s ease, filter 0.08s ease !important;
+        }
+
+        /* Secondary button press */
+        .btn-secondary.pressed {
+            transform: scale(0.93) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.35) !important;
+            transition: transform 0.08s ease, background 0.08s ease !important;
+        }
+
+        /* Auth tab press */
+        .auth-tab.pressed {
+            transform: scale(0.91) !important;
+            filter: brightness(0.7) !important;
+            transition: transform 0.08s ease, filter 0.08s ease !important;
+        }
+
+        /* Links and toggles press */
+        .link-pressed {
+            opacity: 0.4 !important;
+            transform: scale(0.93) !important;
+            transition: opacity 0.08s ease, transform 0.08s ease !important;
+        }
+    </style>
+    <script>
+        // If already logged in, skip login page → go straight to dashboard
+        (function () {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            if (token && user) {
+                window.location.replace('/dashboard.html');
+            }
+        })();
+    </script>
+</head>
+
+<body>
+
+    <div class="left">
+        <h1>EpicScholar</h1>
+    </div>
+
+    <div class="right">
+
+        <!-- ══════════════ LOGIN BOX ══════════════ -->
+        <div class="box" id="loginBox">
+            <h2>Welcome to EpicScholar</h2>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTabPassword"
+                    onclick="switchLoginTab('password')">Password</button>
+                <button class="auth-tab" id="loginTabOtp" onclick="switchLoginTab('otp')">Email OTP</button>
+            </div>
+
+            <!-- ── Password login ── -->
+            <div id="loginPasswordSection">
+                <div class="input-box">
+                    <label>Full Name</label>
+                    <input type="text" id="loginName" placeholder="Enter your full name" />
+                    <div id="loginNameMsg" class="message"></div>
+                </div>
+
+                <div class="input-box">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPass" placeholder="Enter password" />
+                        <span class="password-toggle" id="loginToggle">🙈</span>
+                    </div>
+                    <div id="loginPassMsg" class="message"></div>
+                </div>
+
+                <!-- Forgot Password link -->
+                <div class="forgot-link">
+                    <a onclick="showForgotPassword()">Forgot Password?</a>
+                </div>
+
+                <button class="btn" id="loginBtn">Sign In</button>
+                <div id="loginStatus" class="status"></div>
+            </div>
+
+            <!-- ── OTP login ── -->
+            <div id="loginOtpSection" style="display:none;">
+                <div id="otpLoginStep1">
+                    <div class="input-box">
+                        <label>Full Name</label>
+                        <input type="text" id="otpLoginName" placeholder="Enter your full name" />
+                        <div id="otpLoginNameMsg" class="message"></div>
+                    </div>
+                    <div class="input-box">
+                        <label>Email</label>
+                        <input type="email" id="otpLoginEmail" placeholder="Enter your email" />
+                        <div id="otpLoginEmailMsg" class="message"></div>
+                    </div>
+                    <button class="btn" onclick="sendLoginOTP()">Send OTP</button>
+                    <div id="otpLoginSendStatus" class="status"></div>
+                </div>
+
+                <div id="otpLoginStep2" style="display:none;">
+                    <p class="otp-hint">Enter the 6-digit code sent to your email</p>
+                    <div class="input-box">
+                        <label>OTP Code</label>
+                        <input type="text" id="otpLoginCode" placeholder="6-digit code" maxlength="6" />
+                        <div id="otpLoginCodeMsg" class="message"></div>
+                    </div>
+                    <button class="btn" onclick="verifyLoginOTP()">Verify & Sign In</button>
+                    <div id="otpLoginVerifyStatus" class="status"></div>
+                    <div class="otp-resend">Didn't get it? <a onclick="resendLoginOTP()">Resend OTP</a></div>
+                </div>
+            </div>
+
+            <div class="switch">New here? <a id="toSignup" href="#">Create account</a></div>
+            <div class="org-link">Are you an organization? <a href="/org.html">Click here</a></div>
+        </div>
+
+        <!-- ══════════════ SIGNUP BOX ══════════════ -->
+        <div class="box" id="signupBox" style="display:none;">
+            <h2>Sign Up</h2>
+
+            <div id="signupFormSection">
+                <div class="input-box">
+                    <label>Full Name</label>
+                    <input type="text" id="name" placeholder="Enter your name" />
+                    <div id="nameMsg" class="message"></div>
+                </div>
+
+                <div class="input-box">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter your email" />
+                    <div id="signupEmailMsg" class="message"></div>
+                </div>
+
+                <div class="input-box">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Create password" />
+                        <span class="password-toggle" id="signupToggle">🙈</span>
+                    </div>
+                    <div id="passwordMsg" class="message"></div>
+                </div>
+
+                <div class="input-box">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob" />
+                    <div id="dobMsg" class="message"></div>
+                </div>
+
+                <div class="input-box">
+                    <label>Grade</label>
+                    <input type="number" id="grade" min="1" max="12" placeholder="Enter grade" />
+                    <div id="gradeMsg" class="message"></div>
+                </div>
+
+                <div class="input-box">
+                    <label>Syllabus</label>
+                    <select id="syllabus">
+                        <option value="">Select syllabus</option>
+                        <option value="CBSE">CBSE</option>
+                        <option value="ICSE">ICSE</option>
+                        <option value="Matriculation">Matriculation</option>
+                    </select>
+                    <div id="syllabusMsg" class="message"></div>
+                </div>
+
+                <button class="btn" id="signupBtn">Create Account</button>
+                <div id="signupStatus" class="status"></div>
+            </div>
+
+            <div id="signupOtpSection" style="display:none;">
+                <p class="otp-hint">A 6-digit code was sent to your email.<br />Enter it below to verify your account.
+                </p>
+                <div class="input-box">
+                    <label>OTP Code</label>
+                    <input type="text" id="signupOtpCode" placeholder="6-digit code" maxlength="6" />
+                    <div id="signupOtpMsg" class="message"></div>
+                </div>
+                <button class="btn" onclick="verifySignupOTP()">Verify Account</button>
+                <div id="signupOtpStatus" class="status"></div>
+                <div class="otp-resend">Didn't get it? <a onclick="resendSignupOTP()">Resend OTP</a></div>
+            </div>
+
+            <div class="switch">Already have an account? <a id="toLogin" href="#">Sign In</a></div>
+            <div class="org-link">Are you an organization? <a href="/org.html">Click here</a></div>
+        </div>
+
+        <!-- ══════════════ FORGOT PASSWORD BOX ══════════════ -->
+        <div class="box" id="forgotBox" style="display:none;">
+
+            <!-- Step 1: Enter email -->
+            <div id="forgotStep1">
+                <h2>Forgot Password</h2>
+                <p class="otp-hint" style="margin-bottom:16px;">Enter your registered email address and we'll send you a
+                    reset code.</p>
+                <div class="input-box">
+                    <label>Email Address</label>
+                    <input type="email" id="forgotEmail" placeholder="Enter your email" />
+                    <div id="forgotEmailMsg" class="message"></div>
+                </div>
+                <button class="btn" onclick="sendForgotOTP()">Send Reset Code</button>
+                <div id="forgotSendStatus" class="status"></div>
+                <div class="back-link"><a onclick="backToLogin()">← Back to Login</a></div>
+            </div>
+
+            <!-- Step 2: Enter OTP -->
+            <div id="forgotStep2" style="display:none;">
+                <h2>Enter Reset Code</h2>
+                <p class="otp-hint">Enter the 6-digit code sent to your email.</p>
+                <div class="input-box">
+                    <label>Reset Code</label>
+                    <input type="text" id="forgotOtpCode" placeholder="6-digit code" maxlength="6" />
+                    <div id="forgotOtpMsg" class="message"></div>
+                </div>
+                <button class="btn" onclick="verifyForgotOTP()">Verify Code</button>
+                <div id="forgotOtpStatus" class="status"></div>
+                <div class="otp-resend">Didn't get it? <a onclick="resendForgotOTP()">Resend Code</a></div>
+                <div class="back-link"><a onclick="backToLogin()">← Back to Login</a></div>
+            </div>
+
+            <!-- Step 3: New password -->
+            <div id="forgotStep3" style="display:none;">
+                <h2>Reset Password</h2>
+                <p class="otp-hint">Create your new password.</p>
+                <div class="input-box">
+                    <label>New Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="newPassword" placeholder="New password (min 6 chars)" />
+                        <span class="password-toggle" id="newPassToggle">🙈</span>
+                    </div>
+                    <div id="newPassMsg" class="message"></div>
+                </div>
+                <div class="input-box">
+                    <label>Confirm Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password" />
+                        <span class="password-toggle" id="confirmPassToggle">🙈</span>
+                    </div>
+                    <div id="confirmPassMsg" class="message"></div>
+                </div>
+                <button class="btn" onclick="resetPassword()">Reset Password</button>
+                <div id="resetStatus" class="status"></div>
+            </div>
+
+        </div>
+
+    </div><!-- end .right -->
+
+    <script>
+        const API_URL = 'https://epicscholar.cloud/api';
+
+        // ── temp state ──
+        let pendingSignupUserId = null;
+        let pendingOtpName = null;
+        let pendingOtpEmail = null;
+        let forgotUserId = null;
+        let forgotVerifiedOtp = null;
+
+        // ── password toggles ──
+        function setupPasswordToggle(toggleId, inputId) {
+            const toggle = document.getElementById(toggleId);
+            const input = document.getElementById(inputId);
+            if (!toggle || !input) return;
+            toggle.onclick = () => {
+                if (input.type === 'password') { input.type = 'text'; toggle.textContent = '🙉'; }
+                else { input.type = 'password'; toggle.textContent = '🙈'; }
+            };
+        }
+        setupPasswordToggle('loginToggle', 'loginPass');
+        setupPasswordToggle('signupToggle', 'password');
+        setupPasswordToggle('newPassToggle', 'newPassword');
+        setupPasswordToggle('confirmPassToggle', 'confirmPassword');
+
+        // ── switch login/signup ──
+        document.getElementById('toSignup').onclick = e => {
+            e.preventDefault();
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('signupBox').style.display = 'block';
+            document.getElementById('forgotBox').style.display = 'none';
+            clearAll();
+        };
+        document.getElementById('toLogin').onclick = e => {
+            e.preventDefault();
+            document.getElementById('signupBox').style.display = 'none';
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('forgotBox').style.display = 'none';
+            clearAll();
+        };
+
+        function clearAll() {
+            document.querySelectorAll('.message, .status').forEach(el => el.textContent = '');
+        }
+
+        // ── login tab switcher ──
+        function switchLoginTab(tab) {
+            const isPassword = tab === 'password';
+            document.getElementById('loginPasswordSection').style.display = isPassword ? '' : 'none';
+            document.getElementById('loginOtpSection').style.display = isPassword ? 'none' : '';
+            document.getElementById('loginTabPassword').classList.toggle('active', isPassword);
+            document.getElementById('loginTabOtp').classList.toggle('active', !isPassword);
+            clearAll();
+        }
+
+        // ════════════════════════════════════════
+        // PASSWORD LOGIN
+        // ════════════════════════════════════════
+        document.getElementById('loginBtn').onclick = async () => {
+            clearAll();
+            const fullName = document.getElementById('loginName').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
+            const loginStatus = document.getElementById('loginStatus');
+
+            if (!fullName || !password) {
+                loginStatus.textContent = 'Full Name and password are required.';
+                loginStatus.style.color = 'red';
+                return;
+            }
+
+            loginStatus.textContent = 'Logging in...';
+            loginStatus.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, password })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    loginStatus.textContent = data.message;
+                    loginStatus.style.color = '#4ade80';
+                    setTimeout(() => { window.location.href = '/dashboard.html'; }, 1000);
+                } else {
+                    loginStatus.textContent = data.message;
+                    loginStatus.style.color = 'red';
+                }
+            } catch (err) {
+                loginStatus.textContent = 'Network error. Please try again.';
+                loginStatus.style.color = 'red';
+            }
+        };
+
+        // ════════════════════════════════════════
+        // SIGNUP
+        // ════════════════════════════════════════
+        document.getElementById('signupBtn').onclick = async () => {
+            clearAll();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const dob = document.getElementById('dob').value;
+            const grade = document.getElementById('grade').value;
+            const syllabus = document.getElementById('syllabus').value;
+            const status = document.getElementById('signupStatus');
+
+            if (!name || !email || !password || !dob || !grade || !syllabus) {
+                status.textContent = 'All fields are required.';
+                status.style.color = 'red';
+                return;
+            }
+
+            status.textContent = 'Creating account...';
+            status.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, dob, grade, syllabus })
+                });
+                const data = await response.json();
+
+                if (data.requiresVerification) {
+                    pendingSignupUserId = data.userId;
+                    document.getElementById('signupFormSection').style.display = 'none';
+                    document.getElementById('signupOtpSection').style.display = '';
+                    status.textContent = '';
+                } else {
+                    status.textContent = data.message;
+                    status.style.color = data.success ? '#4ade80' : 'red';
+                }
+            } catch (err) {
+                status.textContent = 'Network error. Please try again.';
+                status.style.color = 'red';
+            }
+        };
+
+        async function verifySignupOTP() {
+            const otp = document.getElementById('signupOtpCode').value.trim();
+            const status = document.getElementById('signupOtpStatus');
+            const errMsg = document.getElementById('signupOtpMsg');
+            errMsg.textContent = '';
+            status.textContent = 'Verifying...';
+            status.style.color = '#66aaff';
+
+            if (!otp || otp.length !== 6) {
+                errMsg.textContent = 'Enter the 6-digit code.';
+                status.textContent = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: pendingSignupUserId, otp, purpose: 'signup' })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    status.textContent = 'Account verified! Redirecting...';
+                    status.style.color = '#4ade80';
+                    setTimeout(() => { window.location.href = '/dashboard.html'; }, 1000);
+                } else {
+                    status.textContent = data.message;
+                    status.style.color = 'red';
+                }
+            } catch (err) {
+                status.textContent = 'Network error. Please try again.';
+                status.style.color = 'red';
+            }
+        }
+
+        async function resendSignupOTP() {
+            const status = document.getElementById('signupOtpStatus');
+            status.textContent = 'Resending...';
+            status.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/resend-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: pendingSignupUserId, purpose: 'signup' })
+                });
+                const data = await response.json();
+                status.textContent = data.message;
+                status.style.color = data.success ? '#4ade80' : 'red';
+            } catch (err) {
+                status.textContent = 'Network error.';
+                status.style.color = 'red';
+            }
+        }
+
+        // ════════════════════════════════════════
+        // OTP LOGIN
+        // ════════════════════════════════════════
+        async function sendLoginOTP() {
+            const name = document.getElementById('otpLoginName').value.trim();
+            const email = document.getElementById('otpLoginEmail').value.trim();
+            const status = document.getElementById('otpLoginSendStatus');
+            document.getElementById('otpLoginNameMsg').textContent = '';
+            document.getElementById('otpLoginEmailMsg').textContent = '';
+            status.textContent = '';
+
+            if (!name) { document.getElementById('otpLoginNameMsg').textContent = 'Enter your name.'; return; }
+            if (!email) { document.getElementById('otpLoginEmailMsg').textContent = 'Enter your email.'; return; }
+
+            pendingOtpName = name;
+            pendingOtpEmail = email;
+
+            status.textContent = 'Sending OTP...';
+            status.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/login-otp/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    status.textContent = '';
+                    document.getElementById('otpLoginStep1').style.display = 'none';
+                    document.getElementById('otpLoginStep2').style.display = '';
+                } else {
+                    status.textContent = data.message;
+                    status.style.color = 'red';
+                }
+            } catch (err) {
+                status.textContent = 'Network error. Please try again.';
+                status.style.color = 'red';
+            }
+        }
+
+        async function verifyLoginOTP() {
+            const otp = document.getElementById('otpLoginCode').value.trim();
+            const status = document.getElementById('otpLoginVerifyStatus');
+            const errMsg = document.getElementById('otpLoginCodeMsg');
+            errMsg.textContent = '';
+            status.textContent = '';
+
+            if (!otp || otp.length !== 6) {
+                errMsg.textContent = 'Enter the 6-digit code.';
+                return;
+            }
+
+            status.textContent = 'Verifying...';
+            status.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/login-otp/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: pendingOtpName, email: pendingOtpEmail, otp })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    status.textContent = 'Login successful! Redirecting...';
+                    status.style.color = '#4ade80';
+                    setTimeout(() => { window.location.href = '/dashboard.html'; }, 1000);
+                } else {
+                    status.textContent = data.message;
+                    status.style.color = 'red';
+                }
+            } catch (err) {
+                status.textContent = 'Network error. Please try again.';
+                status.style.color = 'red';
+            }
+        }
+
+        async function resendLoginOTP() {
+            const status = document.getElementById('otpLoginVerifyStatus');
+            status.textContent = 'Resending...';
+            status.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/login-otp/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: pendingOtpName, email: pendingOtpEmail })
+                });
+                const data = await response.json();
+                status.textContent = data.message;
+                status.style.color = data.success ? '#4ade80' : 'red';
+            } catch (err) {
+                status.textContent = 'Network error.';
+                status.style.color = 'red';
+            }
+        }
+
+        // ════════════════════════════════════════
+        // FORGOT / RESET PASSWORD
+        // ════════════════════════════════════════
+
+        function showForgotPassword() {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('signupBox').style.display = 'none';
+            document.getElementById('forgotBox').style.display = 'block';
+            // Reset all steps
+            document.getElementById('forgotStep1').style.display = '';
+            document.getElementById('forgotStep2').style.display = 'none';
+            document.getElementById('forgotStep3').style.display = 'none';
+            clearAll();
+            forgotUserId = null;
+            forgotVerifiedOtp = null;
+        }
+
+        function backToLogin() {
+            document.getElementById('forgotBox').style.display = 'none';
+            document.getElementById('loginBox').style.display = 'block';
+            clearAll();
+        }
+
+        // Step 1 — send reset OTP
+        async function sendForgotOTP() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            const status = document.getElementById('forgotSendStatus');
+            const errMsg = document.getElementById('forgotEmailMsg');
+            errMsg.textContent = '';
+            status.textContent = '';
+
+            if (!email) {
+                errMsg.textContent = 'Enter your email address.';
+                return;
+            }
+
+            status.textContent = 'Sending reset code...';
+            status.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    forgotUserId = data.userId;
+                    status.textContent = '';
+                    document.getElementById('forgotStep1').style.display = 'none';
+                    document.getElementById('forgotStep2').style.display = '';
+                } else {
+                    status.textContent = data.message;
+                    status.style.color = 'red';
+                }
+            } catch (err) {
+                status.textContent = 'Network error. Please try again.';
+                status.style.color = 'red';
+            }
+        }
+
+        // Step 2 — verify reset OTP
+        async function verifyForgotOTP() {
+            const otp = document.getElementById('forgotOtpCode').value.trim();
+            const status = document.getElementById('forgotOtpStatus');
+            const errMsg = document.getElementById('forgotOtpMsg');
+            errMsg.textContent = '';
+            status.textContent = '';
+
+            if (!otp || otp.length !== 6) {
+                errMsg.textContent = 'Enter the 6-digit code.';
+                return;
+            }
+
+            // We'll validate OTP on the reset step — just move to step 3
+            forgotVerifiedOtp = otp;
+            document.getElementById('forgotStep2').style.display = 'none';
+            document.getElementById('forgotStep3').style.display = '';
+        }
+
+        // Resend forgot OTP
+        async function resendForgotOTP() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            const status = document.getElementById('forgotOtpStatus');
+            status.textContent = 'Resending...';
+            status.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                if (data.success && data.userId) forgotUserId = data.userId;
+                status.textContent = 'Reset code resent!';
+                status.style.color = '#4ade80';
+            } catch (err) {
+                status.textContent = 'Network error.';
+                status.style.color = 'red';
+            }
+        }
+
+        // Step 3 — reset password
+        async function resetPassword() {
+            const newPass = document.getElementById('newPassword').value.trim();
+            const confirmPass = document.getElementById('confirmPassword').value.trim();
+            const status = document.getElementById('resetStatus');
+            const newMsg = document.getElementById('newPassMsg');
+            const confirmMsg = document.getElementById('confirmPassMsg');
+
+            newMsg.textContent = '';
+            confirmMsg.textContent = '';
+            status.textContent = '';
+
+            if (!newPass || newPass.length < 6) {
+                newMsg.textContent = 'Password must be at least 6 characters.';
+                return;
+            }
+            if (newPass !== confirmPass) {
+                confirmMsg.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            status.textContent = 'Resetting password...';
+            status.style.color = '#66aaff';
+
+            try {
+                const response = await fetch(`${API_URL}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: forgotUserId, otp: forgotVerifiedOtp, newPassword: newPass })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    status.textContent = data.message;
+                    status.style.color = '#4ade80';
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        backToLogin();
+                        document.getElementById('forgotStep1').style.display = '';
+                        document.getElementById('forgotStep2').style.display = 'none';
+                        document.getElementById('forgotStep3').style.display = 'none';
+                    }, 2000);
+                } else {
+                    status.textContent = data.message;
+                    status.style.color = 'red';
+                    // If OTP was wrong, go back to OTP step
+                    if (data.message.includes('Invalid') || data.message.includes('expired')) {
+                        setTimeout(() => {
+                            document.getElementById('forgotStep3').style.display = 'none';
+                            document.getElementById('forgotStep2').style.display = '';
+                            forgotVerifiedOtp = null;
+                        }, 1500);
+                    }
+                }
+            } catch (err) {
+                status.textContent = 'Network error. Please try again.';
+                status.style.color = 'red';
+            }
+        }
+        // Force reliable press feedback on touch devices
+        document.querySelectorAll('.btn, .btn-secondary, .auth-tab').forEach(el => {
+            el.addEventListener('touchstart', () => {
+                el.classList.add('pressed');
+            }, { passive: true });
+
+            el.addEventListener('touchend', () => {
+                setTimeout(() => el.classList.remove('pressed'), 150);
+            }, { passive: true });
+
+            el.addEventListener('touchcancel', () => {
+                el.classList.remove('pressed');
+            }, { passive: true });
+        });
+
+        // Links and small tappables
+        document.querySelectorAll('a, .password-toggle').forEach(el => {
+            el.addEventListener('touchstart', () => {
+                el.classList.add('link-pressed');
+            }, { passive: true });
+
+            el.addEventListener('touchend', () => {
+                setTimeout(() => el.classList.remove('link-pressed'), 120);
+            }, { passive: true });
+
+            el.addEventListener('touchcancel', () => {
+                el.classList.remove('link-pressed');
+            }, { passive: true });
+        });
+    </script>
+</body>
+
+</html>
